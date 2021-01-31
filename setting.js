@@ -660,6 +660,7 @@ async function saveSetting() {
     isInvisible = true
   }
 
+  let calendarSources = []
   if(size_change > 0) {
     if(large_change == 1) {
       newJSON.largeWidgetSetting = [false, true]
@@ -669,10 +670,9 @@ async function saveSetting() {
       newJSON.largeWidgetSetting = [true, large_change==2]
       newJSON.calendarPeriod = calendarPeriod[calendar_change].toString()
 
-      newJSON.calendarSource = []
       for(let i in calendar_source_list) {
         if(calendar_source_status[i]) {
-          newJSON.calendarSource.push(calendar_source_list[i])
+          calendarSources.push(calendar_source_list[i])
         }
       }
     }
@@ -684,7 +684,7 @@ async function saveSetting() {
     else newJSON.largeWidgetSetting.push('false')
 
     newJSON.largeWidgetSetting = newJSON.largeWidgetSetting.toString()
-    newJSON.calendarSource = newJSON.calendarSource.toString()
+    newJSON.calendarSource = calendarSources.toString()
   }
 
   // Save new setting values
