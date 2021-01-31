@@ -88,7 +88,7 @@ let calendarPeriod
 await updateScript()
 
 // Set widget's attributes.
-setWidgetAttribute()
+await setWidgetAttribute()
 
 // Bring json files.
 await fetchJSONs()
