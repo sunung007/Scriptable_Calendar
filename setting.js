@@ -107,7 +107,7 @@ let row
 
 // ============================================================
 
-const background_row = (row_num) => {
+const background_row = () => {
   let arr = []
 
   row = new UITableRow()
@@ -159,38 +159,38 @@ const background_row = (row_num) => {
   background_left.onTap = () => {
     background_change = background_change==0 ?
                         3:background_change-1
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
   background_name.onTap = async () => {
     background_change = await setAlert(background_list, '배경 설정')
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
   background_right.onTap = () => {
     background_change = (background_change+1) % 4
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
   color_left.onTap = () => {
     back_color_change = back_color_change==0 ?
                         5:back_color_change-1
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
   color_name.onTap = async () => {
     back_color_change = await setAlert(color_list, '배경 색상 설정')
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
   color_right.onTap = () => {
     back_color_change = (back_color_change+1) % 6
-    rows[row_num] = background_row()
+    rows[4] = background_row()
     refreshAllRows()
   }
 
@@ -215,7 +215,7 @@ const background_row = (row_num) => {
   return arr
 }
 
-const content_row = (row_num) => {
+const content_row = () => {
   row = new UITableRow()
   const content_left = UITableCell.button('◀️')
   const content_name = UITableCell.button(color_list[content_change])
@@ -231,19 +231,19 @@ const content_row = (row_num) => {
 
   content_left.onTap = () => {
     content_change = content_change==0 ? 5:content_change-1
-    rows[row_num] = content_row()
+    rows[7] = content_row()
     refreshAllRows()
   }
 
   content_name.onTap = async () => {
     content_change = await setAlert(color_list, '텍스트/아이콘 색상 설정')
-    rows[row_num] = content_row()
+    rows[7] = content_row()
     refreshAllRows()
   }
 
   content_right.onTap = () => {
     content_change = (content_change+1) % 6
-    rows[row_num] = content_row()
+    rows[7] = content_row()
     refreshAllRows()
   }
 
@@ -506,7 +506,7 @@ const size_row = (row_num) => {
   return arr
 }
 
-const language_row = (row_num) => {
+const language_row = () => {
   row = new UITableRow()
 
   const language_left = UITableCell.button('◀️')
@@ -523,19 +523,19 @@ const language_row = (row_num) => {
 
   language_left.onTap = () => {
     language_change = 1 - language_change
-    rows[row_num] = language_row()
+    rows[10] = language_row()
     refreshAllRows()
   }
 
   language_name.onTap = async () => {
     language_change = await setAlert(language_list, '언어 선택')
-    rows[row_num] = language_row()
+    rows[10] = language_row()
     refreshAllRows()
   }
 
   language_right.onTap = () => {
     language_change = 1 - language_change
-    rows[row_num] = language_row()
+    rows[10] = language_row()
     refreshAllRows()
   }
 
@@ -599,13 +599,13 @@ function setUITable() {
 
   // background
   addTextRow('배경', '기존에 투명 위젯을 사용 중이고 홈화면이 바뀌지 않았다면, "이미지에서 선택"으로 설정하세요.')
-  addRow(background_row(4))
+  addRow(background_row())
 
   division()
 
   // text/icon color
   addTextRow('텍스트/아이콘 색상')
-  addRow(content_row(7))
+  addRow(content_row())
 
   division()
 
@@ -617,12 +617,12 @@ function setUITable() {
 
   // language
   addTextRow('언어')
-  addRow(language_row(10))
+  addRow(language_row())
 
   division()
 
   // Save button
-  addRow(save_row(12))
+  addRow(save_row())
 
   division()
 
