@@ -3,7 +3,7 @@
 본 코드를 복제/공유 시 발생하는 문제에 대해서는 책임지지 않으며, 전적으로 사용자에게 책임이 있습니다.
 
 본 위젯은 Scriptable을 이용합니다.
-본 위젯 및 코드에 대한 자세한 내용 및 문의는 아래를 참고해주십시오.
+본 위젯 및 코에 대한 자세한 내용 및 문의는 아래를 참고해주십시오.
 https://gofo-coding.tistory.com/category/Scriptable/%EB%8B%AC%EB%A0%A5%20%EC%9C%84%EC%A0%AF
 */
 
@@ -664,20 +664,21 @@ async function setWidgetAttribute() {
     showCalendar[2] = array[2] == 'true'
     if(showCalendar[0]) calendarPeriod = settingJSON.calendarPeriod
     isCalendarRight = settingJSON.isCalendarRight == 'true'
-    
-    try {
-      for(let i in calendarList) {
-        calendarSource.push(await Calendar.forEventsByTitle
-                                           (calendarList[i]))
-      }
-    }
-    catch {
-      const noti = new Notification()
-      noti.title = '[Gofo] 달력 위젯'
-      noti.body = '캘린더가 올바르게 지정되지 않았습니다. 다시 지정해주세요.'
-      noti.schedule()
 
-      fetchSettingScript(true)
+    if(showCalendar[0]) {
+      try {
+        for (let i in calendarList) {
+          calendarSource.push(await Calendar.forEventsByTitle
+          (calendarList[i]))
+        }
+      } catch {
+        const noti = new Notification()
+        noti.title = '[Gofo] 달력 위젯'
+        noti.body = '캘린더가 올바르게 지정되지 않았습니다. 다시 지정해주세요.'
+        noti.schedule()
+
+        fetchSettingScript(true)
+      }
     }
   }
 
