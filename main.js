@@ -27,7 +27,7 @@ const userSetting = {
     extraSmall : 12, // 일정 내용
     small      : 13, // 일정/미리알림/월 타이틀
     monthly    : 9,  // 달력
-    battery    : 10, // 배터리 정보
+    battery    : 12, // 배터리 정보
   },
 
   font : {
