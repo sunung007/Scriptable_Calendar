@@ -48,8 +48,8 @@ for(let i in all_calendar_source) {
 
 // ============================================================
 
-let background_change = settingJSON.isBackgroundColor == null ?
-                        0 : settingJSON.isBackgroundColor
+let background_change = settingJSON.backgroundType == null ?
+                        0 : settingJSON.backgroundType
 let back_color_change = settingJSON.backgroundColorNumber == null ?
                       0 : Number(settingJSON.backgroundColorNumber)
 let background_image
@@ -250,7 +250,7 @@ const content_row = () => {
   return row
 }
 
-const size_row = (row_num) => {
+const size_row = () => {
   let arr = []
 
   row = new UITableRow()
@@ -266,10 +266,10 @@ const size_row = (row_num) => {
   row.addCell(size_name)
   row.addCell(size_right)
 
-  arr.push(row)
+//  arr.push(row)
 
   // Option in large size.
-  if(size_change == 2) {
+  if(size_change > 0) {
 
     // Wheater to show monthly calendar
     row = new UITableRow()
@@ -370,7 +370,7 @@ const size_row = (row_num) => {
         
         cell.onTap = () => {
           calendar_source_status[i] = !calendar_source_status[i]
-          rows[row_num] = size_row()
+          rows[10] = size_row()
           refreshAllRows()
         }
       }
@@ -402,104 +402,104 @@ const size_row = (row_num) => {
     // Listeners
     monthly_left.onTap = () => {
       monthly_change = 1-monthly_change
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     monthly_name.onTap = async () => {
       monthly_change = await setAlert(monthly_list, '달력 설정')
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     monthly_right.onTap = () => {
       monthly_change = 1-monthly_change
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     large_left.onTap = () => {
       large_change = large_change==0 ? 2 : large_change-1
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     large_name.onTap = async () => {
       large_change = await setAlert(large_list, '캘린더/리마인더 설정')
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     large_right.onTap = () => {
       large_change = (large_change+1) % 3
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     calendar_left.onTap = () => {
       calendar_change = calendar_change==0 ? 5 : calendar_change-1
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     calendar_name.onTap = async () => {
       calendar_change = await setAlert(calendar_list, '캘린더 기간 설정')
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     calendar_right.onTap = () => {
       calendar_change = (calendar_change+1) % 6
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     calendar_period_left.onTap = () => {
       if(calendar_period > 0) calendar_period--
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     calendar_period_right.onTap = () => {
       if(calendar_period < 365) calendar_period++
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     align_left.onTap = () => {
       align_change = 1-align_change
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     align_name.onTap = async () => {
       align_change = await setAlert(align_list, '배열 설정')
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
 
     align_right.onTap = () => {
       align_change = 1-align_change
-      rows[row_num] = size_row()
+      rows[10] = size_row()
       refreshAllRows()
     }
   }
 
   size_left.onTap = () => {
     size_change = size_change==0 ? 2:size_change-1
-    rows[row_num] = size_row()
+    rows[10] = size_row()
     refreshAllRows()
   }
 
   size_name.onTap = async () => {
     size_change = await setAlert(size_list, '위젯 크기 설정')
-    rows[row_num] = size_row()
+    rows[10] = size_row()
     refreshAllRows()
   }
 
   size_right.onTap = () => {
     size_change = (size_change+1) % 3
-    rows[row_num] = size_row()
+    rows[10] = size_row()
     refreshAllRows()
   }
 
@@ -523,19 +523,19 @@ const language_row = () => {
 
   language_left.onTap = () => {
     language_change = 1 - language_change
-    rows[10] = language_row()
+    rows[13] = language_row()
     refreshAllRows()
   }
 
   language_name.onTap = async () => {
     language_change = await setAlert(language_list, '언어 선택')
-    rows[10] = language_row()
+    rows[13] = language_row()
     refreshAllRows()
   }
 
   language_right.onTap = () => {
     language_change = 1 - language_change
-    rows[10] = language_row()
+    rows[13] = language_row()
     refreshAllRows()
   }
 
@@ -609,11 +609,11 @@ function setUITable() {
 
   division()
 
-  // // widget size and components
-  // addTextRow('위젯 크기')
-  // addRow(size_row())
-  //
-  // division()
+  // widget size and components
+  addTextRow('위젯 크기')
+  addRow(size_row())
+  
+  division()
 
   // language
   addTextRow('언어')
@@ -639,30 +639,28 @@ async function saveSetting() {
   let newJSON = {}
   let isInvisible = false
 
-  newJSON.region = region_change.toString()
-  newJSON.useCovidLocation = weather_change==0 ? 'false' : 'true'
   newJSON.locale = language_change==0 ? 'kr' : 'en'
   newJSON.contentColor = content_change.toString()
   newJSON.widgetSize = (size_change + 1).toString()
 
   if(background_change == 0) {
-    newJSON.isBackgroundColor = 'color'
+    newJSON.backgroundType = 'color'
     newJSON.backgroundColorNumber = back_color_change
   }
   else if(background_change == 1) {
-    newJSON.isBackgroundColor = 'background'
+    newJSON.backgroundType = 'background'
     localFM.writeImage(path+'backgroundImage', background_image)
   }
   else if(background_change == 2) {
-    newJSON.isBackgroundColor = 'bookmark'
+    newJSON.backgroundType = 'bookmark'
     newJSON.bookmark = background_bookmark
   }
   else if(background_change == 3) {
-    newJSON.isBackgroundColor = 'invisible'
+    newJSON.backgroundType = 'invisible'
     isInvisible = true
   }
 
-  if(size_change == 2) {
+  if(size_change > 0) {
     if(large_change == 1) {
       newJSON.largeWidgetSetting = [false, true]
     }
@@ -701,7 +699,7 @@ async function saveSetting() {
   if(isInvisible) fetchInvisibleScript()
   else {
     // Run original script.
-    const url = 'scriptable:///run/' + encodeURI('달력 위젯')
+    const url = 'scriptable:///run/' + encodeURI('main')
     await WebView.loadURL(url)
   }
 }

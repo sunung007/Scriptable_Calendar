@@ -4,32 +4,26 @@
 // Part : user
 const userSetting = {
   // 버튼
-  buttons  : {    // 위젯 아래의 버튼들
-  number : 9,  // 버튼의 개수
-  items : [     // 버튼 내용
+  buttons  : [   // 위젯 아래의 버튼들
     // 형식 : ['SF symbol name', '단축어 이름이나 앱 url scheme']
-    ['headphones.circle', '버즈+지니'],
     ['viewfinder.circle', 'kakaotalk://con/web?url=https://accounts.kakao.com/qr_check_in'], // QR 체크인
     ['k.circle', 'kakaopay://'],              // 카카오페이
-    ['a.circle', '알람 열기'],
     // 아래는 어플을 실행하는 버튼입니다.
     // 필요없으시면 지우셔도 됩니다. 대신 위에 number는 줄여주세요!
     ['p.circle', 'photos-redirect://'],         // 사진
-    ['pencil.circle', 'mobilenotes://'], // 메모
-    ['envelope.circle', 'message://'],              // 메일
-    ['folder.circle', 'shareddocuments://'],        // 파일
     ['circle.grid.2x2', 'App-prefs://'],                // 설정
     /*...*/
-  ]},
+  ],
 
-  buttonSize   : 22,   // 버튼 크기
-  buttonSpacer : 12, // 버튼 사이 간격
+  buttonSize   : 16,   // 버튼 크기
+  buttonSpacer : 10, // 버튼 사이 간격
 
 
-  // 글자
   fontSize : {       // 글자 크기
+    extraSmall : 12, // 일정 내용
     small      : 13, // 배터리
-    monthly    : 10, // 큰사이즈 달력
+    monthly    : 9,  // 달력
+    battery    : 10,
   },
 
   font : {
@@ -48,7 +42,8 @@ const userSetting = {
     saturday : '545454', // '2B69F0',
     sunday   : '545454', //'F51673',
   },
-  
+
+  calendarNumber : 2, // 캘린더/리마인더 일정 개수
   calendarSpacer : 0, // 캘린더/리마인더 일정 내용 사이 줄간격
 
   refreshTime : 60 * 10, // 새로고침 시간(단위 : 초)
@@ -56,7 +51,7 @@ const userSetting = {
 
 // ============================================================
 // Part : Developer
-const scriptVersion = 'covid-widget-v3.41'
+const scriptVersion = 'calendar-widget-v1.0'
 
 const localFM = FileManager.local()
 const iCloud = FileManager.iCloud()
@@ -86,7 +81,7 @@ let calendarPeriod
 
 // Start main code. ==============================================
 // Check version and update.
-//wait updateScript()
+await updateScript()
 
 // Set widget's attributes.
 setWidgetAttribute()
@@ -100,7 +95,7 @@ createWidget()
 // Refresh for every minute.
 widget.refreshAfterDate = new Date(Date.now() + 
                                   (1000 * userSetting.refreshTime))
-widget.setPadding(15,15,15,15)
+widget.setPadding(10,10,10,10)
 
 if(settingJSON.backgroundType != 'invisible') {
   if(VIEW_MODE == 1) widget.presentSmall()
@@ -125,7 +120,9 @@ async function updateScript() {
   // version check
   const request = await new Request(url).loadJSON()
   const new_version = Number(request.version)
-  const cur_version = Number(scriptVersion.substring(14))
+  const cur_version = Number(scriptVersion.substring(17))
+
+  console.log(cur_version);
   
   // install update file
   if(new_version > cur_version) {
@@ -149,19 +146,24 @@ function createWidget() {
   outbox = container.addStack()
   outbox.layoutHorizontally()
 
-  // 1st floor : common
-  box = outbox.addStack()
-  box.layoutVertically()
+  if (VIEW_MODE == 2) {
+    if (showCalendar[2]) {
+      setMonthlyDateWidget();
+      outbox.addSpacer(18);
+    }
+    setCalendarWidget();
 
-  if(VIEW_MODE == 2) {
-    // 1st floor : Left
-    setBatteryWidget() // battry
+    container.addSpacer();
+    outbox = container.addStack();
+    
+    box = outbox.addStack();
+    box.layoutVertically();  
+    box.addSpacer((userSetting.buttonSize-userSetting.fontSize.battery)/2);
 
-    // 2nd floor : buttons
-    outbox = container.addStack()
-    box = outbox.addStack()
-    setButtonsWidget() // buttons
+    setBatteryWidget();
 
+    outbox.addSpacer();
+    setButtonsWidget(); // buttons
   }
 }
 
@@ -173,17 +175,17 @@ function setBatteryWidget() {
   const batteryLevel = Device.batteryLevel()
   let image = getBatteryImage(batteryLevel)
 
-  line = stack.addStack()
+  line = box.addStack()
   line.layoutHorizontally()
   line.centerAlignContent()
 
   // Add, color, and resize battery icon.
   content = line.addImage(image)
   if(Device.isCharging()) {
-    content.imageSize = new Size(20, userSetting.fontSize.small)
+    content.imageSize = new Size(userSetting.fontSize.battery*1.8, userSetting.fontSize.battery)
     content.tintColor = Color.green()
   } else {
-    content.imageSize = new Size(24, userSetting.fontSize.small)
+    content.imageSize = new Size(userSetting.fontSize.battery*2, userSetting.fontSize.battery)
     if(batteryLevel*100 <= 20) content.tintColor = Color.red()
     else content.tintColor = contentColor
   }
@@ -192,7 +194,7 @@ function setBatteryWidget() {
 
   // Text
   setText(line, Math.floor(batteryLevel*100)+'%',
-          userSetting.fontSize.small)
+          userSetting.fontSize.battery)
 }
 
 // Make buttons.
@@ -200,18 +202,18 @@ function setButtonsWidget() {
   const shortcutURL = 'shortcuts://run-shortcut?name='
   let url, button, image
 
-  stack = box.addStack()
+  stack = outbox.addStack()
   const buttons = userSetting.buttons
-  for(let i = 0 ; i < buttons.number ; i++) {
-    image = SFSymbol.named(buttons.items[i][0]).image
+  for(let i = 0 ; i < buttons.length ; i++) {
+    image = SFSymbol.named(buttons[i][0]).image
     button = stack.addImage(image)
     button.tintColor = contentColor
     button.imageSize = new Size(userSetting.buttonSize, userSetting.buttonSize)
     // If url is url scheme of baisc app
-    if(buttons.items[i][1].indexOf('://') < 0) {
-      button.url = shortcutURL + encodeURI(buttons.items[i][1])
+    if(buttons[i][1].indexOf('://') < 0) {
+      button.url = shortcutURL + encodeURI(buttons[i][1])
     }
-    else button.url = buttons.items[i][1]
+    else button.url = buttons[i][1]
     stack.addSpacer(userSetting.buttonSpacer)
   }
 }
@@ -221,13 +223,13 @@ function setCalendarWidget() {
   let title, color, line, content
 
   // default : do not show
-  let maxNum = 3 // max number of line each has
+  let maxNum = userSetting.calendarNumber // max number of line each has
   let calendarNum = -1
   let reminderNum = -1
   let calendarLength, reminderLength
 
   // 0 : calendar / 1 : reminder / 2 : monthly date
-  if(!showCalendar[0] || !showCalendar[1]) maxNum = 7
+  if(!showCalendar[0] || !showCalendar[1]) maxNum = maxNum*2
   if(showCalendar[0]) {
     calendarLength = calendarJSON.length
     calendarNum = calendarLength > maxNum ? maxNum : calendarLength
@@ -330,6 +332,7 @@ function setMonthlyDateWidget() {
   // month
   dateFormatter.dateFormat = 'MMM'
   setText(box, dateFormatter.string(date), userSetting.fontSize.small, true)
+  box.addSpacer(6);
   stack = box.addStack()
   stack.layoutHorizontally()
 
@@ -368,10 +371,12 @@ function setMonthlyDateWidget() {
       inline.centerAlignContent()
 
       if(nowDate == j) {
-        setText(inline,j+'',userSetting.fontSize.monthly,true,userSetting.color.red)
+        setText(inline,j+'',userSetting.fontSize.monthly,true,
+                userSetting.color.red)
       }
       else {
-        setText(inline,j+'',userSetting.fontSize.monthly,false,color)
+        setText(inline,j+'',userSetting.fontSize.monthly,
+                false,color)
       }
       line.addSpacer(4)
     }
@@ -644,7 +649,7 @@ async function setWidgetAttribute() {
     return fetchSettingScript(true)
   }
 
-  if(VIEW_MODE == 3) {
+  if(VIEW_MODE > 1) {
     let array = (settingJSON.largeWidgetSetting).split(',')
     let calendarList = settingJSON.calendarSource.split(',')
     
