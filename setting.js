@@ -107,7 +107,7 @@ let row
 
 // ============================================================
 
-const background_row = () => {
+const background_row = (row_num) => {
   let arr = []
 
   row = new UITableRow()
@@ -159,38 +159,38 @@ const background_row = () => {
   background_left.onTap = () => {
     background_change = background_change==0 ?
                         3:background_change-1
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
   background_name.onTap = async () => {
     background_change = await setAlert(background_list, '배경 설정')
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
   background_right.onTap = () => {
     background_change = (background_change+1) % 4
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
   color_left.onTap = () => {
     back_color_change = back_color_change==0 ?
                         5:back_color_change-1
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
   color_name.onTap = async () => {
     back_color_change = await setAlert(color_list, '배경 색상 설정')
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
   color_right.onTap = () => {
     back_color_change = (back_color_change+1) % 6
-    rows[10] = background_row()
+    rows[row_num] = background_row()
     refreshAllRows()
   }
 
@@ -215,7 +215,7 @@ const background_row = () => {
   return arr
 }
 
-const content_row = () => {
+const content_row = (row_num) => {
   row = new UITableRow()
   const content_left = UITableCell.button('◀️')
   const content_name = UITableCell.button(color_list[content_change])
@@ -231,26 +231,26 @@ const content_row = () => {
 
   content_left.onTap = () => {
     content_change = content_change==0 ? 5:content_change-1
-    rows[13] = content_row()
+    rows[row_num] = content_row()
     refreshAllRows()
   }
 
   content_name.onTap = async () => {
     content_change = await setAlert(color_list, '텍스트/아이콘 색상 설정')
-    rows[13] = content_row()
+    rows[row_num] = content_row()
     refreshAllRows()
   }
 
   content_right.onTap = () => {
     content_change = (content_change+1) % 6
-    rows[13] = content_row()
+    rows[row_num] = content_row()
     refreshAllRows()
   }
 
   return row
 }
 
-const size_row = () => {
+const size_row = (row_num) => {
   let arr = []
 
   row = new UITableRow()
@@ -370,7 +370,7 @@ const size_row = () => {
         
         cell.onTap = () => {
           calendar_source_status[i] = !calendar_source_status[i]
-          rows[16] = size_row()
+          rows[row_num] = size_row()
           refreshAllRows()
         }
       }
@@ -402,111 +402,111 @@ const size_row = () => {
     // Listeners
     monthly_left.onTap = () => {
       monthly_change = 1-monthly_change
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     monthly_name.onTap = async () => {
       monthly_change = await setAlert(monthly_list, '달력 설정')
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     monthly_right.onTap = () => {
       monthly_change = 1-monthly_change
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     large_left.onTap = () => {
       large_change = large_change==0 ? 2 : large_change-1
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     large_name.onTap = async () => {
       large_change = await setAlert(large_list, '캘린더/리마인더 설정')
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     large_right.onTap = () => {
       large_change = (large_change+1) % 3
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     calendar_left.onTap = () => {
       calendar_change = calendar_change==0 ? 5 : calendar_change-1
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     calendar_name.onTap = async () => {
       calendar_change = await setAlert(calendar_list, '캘린더 기간 설정')
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     calendar_right.onTap = () => {
       calendar_change = (calendar_change+1) % 6
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     calendar_period_left.onTap = () => {
       if(calendar_period > 0) calendar_period--
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     calendar_period_right.onTap = () => {
       if(calendar_period < 365) calendar_period++
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     align_left.onTap = () => {
       align_change = 1-align_change
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     align_name.onTap = async () => {
       align_change = await setAlert(align_list, '배열 설정')
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
 
     align_right.onTap = () => {
       align_change = 1-align_change
-      rows[16] = size_row()
+      rows[row_num] = size_row()
       refreshAllRows()
     }
   }
 
   size_left.onTap = () => {
     size_change = size_change==0 ? 2:size_change-1
-    rows[16] = size_row()
+    rows[row_num] = size_row()
     refreshAllRows()
   }
 
   size_name.onTap = async () => {
     size_change = await setAlert(size_list, '위젯 크기 설정')
-    rows[16] = size_row()
+    rows[row_num] = size_row()
     refreshAllRows()
   }
 
   size_right.onTap = () => {
     size_change = (size_change+1) % 3
-    rows[16] = size_row()
+    rows[row_num] = size_row()
     refreshAllRows()
   }
 
   return arr
 }
 
-const language_row = () => {
+const language_row = (row_num) => {
   row = new UITableRow()
 
   const language_left = UITableCell.button('◀️')
@@ -523,19 +523,19 @@ const language_row = () => {
 
   language_left.onTap = () => {
     language_change = 1 - language_change
-    rows[19] = language_row()
+    rows[row_num] = language_row()
     refreshAllRows()
   }
 
   language_name.onTap = async () => {
     language_change = await setAlert(language_list, '언어 선택')
-    rows[19] = language_row()
+    rows[row_num] = language_row()
     refreshAllRows()
   }
 
   language_right.onTap = () => {
     language_change = 1 - language_change
-    rows[19] = language_row()
+    rows[row_num] = language_row()
     refreshAllRows()
   }
 
@@ -599,13 +599,13 @@ function setUITable() {
 
   // background
   addTextRow('배경', '기존에 투명 위젯을 사용 중이고 홈화면이 바뀌지 않았다면, "이미지에서 선택"으로 설정하세요.')
-  addRow(background_row())
+  addRow(background_row(4))
 
   division()
 
   // text/icon color
   addTextRow('텍스트/아이콘 색상')
-  addRow(content_row())
+  addRow(content_row(7))
 
   division()
 
@@ -617,12 +617,12 @@ function setUITable() {
 
   // language
   addTextRow('언어')
-  addRow(language_row())
+  addRow(language_row(10))
 
   division()
 
   // Save button
-  addRow(save_row())
+  addRow(save_row(12))
 
   division()
 

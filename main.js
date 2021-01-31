@@ -693,7 +693,7 @@ async function setWidgetAttribute() {
 
 
   async function fetchSettingScript(run) {
-    const url = 'https://raw.githubusercontent.com/sunung007/Scriptable_Canlendar/main/setting.js'
+    const url = 'https://raw.githubusercontent.com/sunung007/Scriptable_Calendar/main/setting.js'
     const filePath = iCloud.joinPath(iCloud.documentsDirectory(),
                                      'Gofo_달력 위젯 설정.js')
 
@@ -702,6 +702,7 @@ async function setWidgetAttribute() {
       console.log('Save setting script.')
       iCloud.writeString(filePath, request)
       run = true
+      console.log(request)
     }
 
     if(run) {
