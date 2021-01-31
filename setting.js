@@ -699,7 +699,7 @@ async function saveSetting() {
   if(isInvisible) fetchInvisibleScript()
   else {
     // Run original script.
-    const url = 'scriptable:///run/' + encodeURI('main')
+    const url = 'scriptable:///run/' + encodeURI('Gofo_달력 위젯')
     await WebView.loadURL(url)
   }
 }
