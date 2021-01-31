@@ -1,29 +1,33 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: cyan; icon-glyph: magic;
+/*
+본 코드는 Gofo에 의해 작성되었습니다.
+본 코드를 복제/공유 시 발생하는 문제에 대해서는 책임지지 않으며, 전적으로 사용자에게 책임이 있습니다.
+
+본 위젯은 Scriptable을 이용합니다.
+본 위젯 및 코드에 대한 자세한 내용 및 문의는 아래를 참고해주십시오.
+https://gofo-coding.tistory.com/category/Scriptable/%EB%8B%AC%EB%A0%A5%20%EC%9C%84%EC%A0%AF
+*/
+
 // Part : user
 const userSetting = {
-  // 버튼
+  // 버튼 관련
   buttons  : [   // 위젯 아래의 버튼들
     // 형식 : ['SF symbol name', '단축어 이름이나 앱 url scheme']
     ['viewfinder.circle', 'kakaotalk://con/web?url=https://accounts.kakao.com/qr_check_in'], // QR 체크인
     ['k.circle', 'kakaopay://'],              // 카카오페이
-    // 아래는 어플을 실행하는 버튼입니다.
-    // 필요없으시면 지우셔도 됩니다. 대신 위에 number는 줄여주세요!
-    ['p.circle', 'photos-redirect://'],         // 사진
-    ['circle.grid.2x2', 'App-prefs://'],                // 설정
+    ['p.circle', 'photos-redirect://'],       // 사진
+    ['circle.grid.2x2', 'App-prefs://'],      // 설정
     /*...*/
   ],
 
   buttonSize   : 16,   // 버튼 크기
   buttonSpacer : 10, // 버튼 사이 간격
 
-
+  // 글자 관련
   fontSize : {       // 글자 크기
     extraSmall : 12, // 일정 내용
-    small      : 13, // 배터리
+    small      : 13, // 일정/미리알림/월 타이틀
     monthly    : 9,  // 달력
-    battery    : 10,
+    battery    : 10, // 배터리 정보
   },
 
   font : {
@@ -33,11 +37,11 @@ const userSetting = {
     bold : null,
   },
 
-  // 색상
+  // 색상 관련
   color  : {
     red  : 'F51673',
     blue : '2B69F0',
-    gray : '545454',  
+    gray : '545454',
     // 월간 달력 색상 : hex값으로 넣으세요.
     saturday : '545454', // '2B69F0',
     sunday   : '545454', //'F51673',
@@ -200,21 +204,23 @@ function setBatteryWidget() {
 // Make buttons.
 function setButtonsWidget() {
   const shortcutURL = 'shortcuts://run-shortcut?name='
-  let url, button, image
+  let button, image
 
   stack = outbox.addStack()
   const buttons = userSetting.buttons
   for(let i = 0 ; i < buttons.length ; i++) {
+    stack.addSpacer(userSetting.buttonSpacer)
+
     image = SFSymbol.named(buttons[i][0]).image
     button = stack.addImage(image)
     button.tintColor = contentColor
     button.imageSize = new Size(userSetting.buttonSize, userSetting.buttonSize)
+
     // If url is url scheme of baisc app
     if(buttons[i][1].indexOf('://') < 0) {
       button.url = shortcutURL + encodeURI(buttons[i][1])
     }
     else button.url = buttons[i][1]
-    stack.addSpacer(userSetting.buttonSpacer)
   }
 }
 
