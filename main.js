@@ -84,6 +84,7 @@ let showCalendar = [true, true, true]
 let calendarSource = []
 let isCalendarRight = false
 let calendarPeriod
+let showCalendarTime
 
 // Start main code. ==============================================
 // Check version and update.
@@ -636,6 +637,13 @@ function setLocaleLanguage(locale) {
   localeJSON.sat        = !fetch ? '토' : 'S'
 }
 
+async function setAlert(content, title, message) {
+  let alert = new Alert()
+  if(title != null) alert.title = title
+  if(message != null) alert.message = message
+  for(let i in content) alert.addAction(content[i])
+  return await alert.present()
+}
 
 // Funciton : widget setting ====================================
 // Set basic settings of widget.
@@ -652,11 +660,8 @@ async function setWidgetAttribute() {
 
   if(settingJSON.backgroundType == 'invisible' &&
      !localFM.fileExists(path+'backgroundImage')) {
-    const noti = new Notification()
-    noti.title = '[Gofo] 달력 위젯'
-    noti.body = '투명 설정이 정상적으로 진행되지 않았습니다. '
-                + '설정을 다시 진행합니다.'
-    noti.schedule()
+    await setAlert(['확인'], '투명 배경 설정',
+        '투명 설정이 정상적으로 진행되지 않았습니다. 설정을 다시 진행합니다.')
 
     const scriptPath = iCloud.joinPath(iCloudDirectory,
                                        'Gofo_투명 위젯 설정')
@@ -685,21 +690,18 @@ async function setWidgetAttribute() {
     showCalendar[0] = array[0] == 'true'
     showCalendar[1] = array[1] == 'true'
     showCalendar[2] = array[2] == 'true'
-    if(showCalendar[0]) calendarPeriod = settingJSON.calendarPeriod
     isCalendarRight = settingJSON.isCalendarRight == 'true'
 
     if(showCalendar[0]) {
+      calendarPeriod = settingJSON.calendarPeriod
+      showCalendarTime = settingJSON.showCalendarTime == 'true'
       try {
         for (let i in calendarList) {
           calendarSource.push(await Calendar.forEventsByTitle
           (calendarList[i]))
         }
       } catch {
-        const noti = new Notification()
-        noti.title = '[Gofo] 달력 위젯'
-        noti.body = '캘린더가 올바르게 지정되지 않았습니다. 다시 지정해주세요.'
-        noti.schedule()
-
+        await setAlert(['확인'], '캘린더 지정', '캘린더가 올바르게 지정되지 않았습니다. 다시 지정해주세요.')
         fetchSettingScript(true)
       }
     }

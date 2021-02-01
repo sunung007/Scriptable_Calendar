@@ -17,7 +17,7 @@ if(localFM.fileExists(path+'settingJSON')) {
 const background_list = ['단색으로 설정', '이미지에서 선택', '북마크에서 선택', '새로운 투명위젯']
 const color_list = ['검정색','하얀색','노란색','초록색','파란색','시스템']
 const size_list = ['작은 크기', '중간 크기', '큰 크기']
-const monthly_list = ['보이기', '보이지 않기']
+const show_list = ['보이기', '보이지 않기']
 const large_list = ['캘린더만', '리마인더만', '캘린더 + 리마인더']
 const align_list = ['왼쪽 정렬', '오른쪽 정렬']
 const calendar_list = ['오늘 일정만', '이번 주 일정 보기', '이번 달 일정 보기', '7일간 일정 보기', '30일간 일정 보기', '기타']
@@ -64,6 +64,7 @@ let large_setting = settingJSON.largeWidgetSetting == null ?
                     settingJSON.largeWidgetSetting.split(',')
 let monthly_change = large_setting[2] == 'true' ? 0 : 1
 let large_change
+let calendar_time_change = settingJSON.showCalendarTime == 'true' ? 0 : 1
 let align_change = settingJSON.isCalendarRight == 'true' ? 1 : 0
 let calendar_change = settingJSON.calendarPeriod
 let calendar_period = 0
@@ -279,7 +280,7 @@ const size_row = () => {
 
     row = new UITableRow()
     const monthly_left = UITableCell.button('◀️')
-    const monthly_name = UITableCell.button(monthly_list[monthly_change])
+    const monthly_name = UITableCell.button(show_list[monthly_change])
     const monthly_right = UITableCell.button('▶️')
 
     monthly_left.centerAligned()
@@ -375,6 +376,28 @@ const size_row = () => {
         }
       }
     }
+
+
+    // Whether to show time
+    row = new UITableRow()
+    cell = UITableCell.text('','캘린더 일정 시간 보기')
+    row.addCell(cell)
+    if(large_change == 0 || large_change == 2) arr.push(row)
+
+    row = new UITableRow()
+    const calendar_time_left = UITableCell.button('◀️')
+    const calnedar_time_name = UITableCell.button(show_list[calendar_time_change])
+    const calendar_time_right = UITableCell.button('▶️')
+
+    calendar_time_left.centerAligned()
+    calnedar_time_name.centerAligned()
+    calendar_time_right.centerAligned()
+
+    row.addCell(calendar_time_left)
+    row.addCell(calnedar_time_name)
+    row.addCell(calendar_time_right)
+
+    if(large_change == 0 || large_change == 2) arr.push(row)
     
 
     // Wheater to left align or right align
@@ -407,7 +430,7 @@ const size_row = () => {
     }
 
     monthly_name.onTap = async () => {
-      monthly_change = await setAlert(monthly_list, '달력 설정')
+      monthly_change = await setAlert(show_list, '달력 설정')
       rows[10] = size_row()
       refreshAllRows()
     }
@@ -462,6 +485,24 @@ const size_row = () => {
 
     calendar_period_right.onTap = () => {
       if(calendar_period < 365) calendar_period++
+      rows[10] = size_row()
+      refreshAllRows()
+    }
+
+    calendar_time_left.onTap = () => {
+      calendar_time_change = 1 - calendar_time_change
+      rows[10] = size_row()
+      refreshAllRows()
+    }
+
+    calnedar_time_name.onTap = async () => {
+      calendar_time_change = await setAlert(show_list, '캘린더 일정 시간 보기')
+      rows[10] = size_row()
+      refreshAllRows()
+    }
+
+    calendar_time_right.onTap = () => {
+      calendar_time_change = 1 - calendar_time_change
       rows[10] = size_row()
       refreshAllRows()
     }
@@ -563,6 +604,11 @@ const save_row = () => {
       return
     }
 
+    if(large_change != 1 && calendar_source_status.toString().indexOf("true") < 0) {
+      setAlert(['확인'], '캘린더 설정', '하나 이상의 캘린더를 "보기"로 설정해주세요.')
+      return
+    }
+
     if(background_change == 3) {
       const result = await setAlert(['확인','취소'], '투명 위젯 만들기', '"새로운" 홈화면을 이용하여 투명위젯을 만드시겠습니까?')
       if(result == 1) return
@@ -610,7 +656,7 @@ function setUITable() {
   division()
 
   // widget size and components
-  addTextRow('위젯 크기')
+  addTextRow('위젯 구성')
   addRow(size_row())
   
   division()
