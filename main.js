@@ -33,21 +33,23 @@ const userSetting = {
   font : {
     // 글꼴 : 프로파일 이름과 정확히 일치해야합니다.
     // 프로파일 : 설정 > 일반 > 프로파일
+    // 프로파일 입력 시 따옴표('')로 감싸야합니다.
+    // 예시 : 'Nanum'
     normal : null,
     bold : null,
   },
 
   // 색상 관련
   color  : {
+    // 따옴표('') 안에 hex값으로 넣으세요.
     red  : 'F51673',
     blue : '2B69F0',
-    gray : '545454',
-    // 월간 달력 색상 : hex값으로 넣으세요.
-    saturday : '545454', // '2B69F0',
-    sunday   : '545454', //'F51673',
+    saturday : '545454',
+    sunday   : '545454',
+    calendarCount : '545454',
   },
 
-  calendarNumber : 2, // 캘린더/리마인더 일정 개수
+  calendarNumber : 2, // 캘린더/리마인더 각 일정의 개수
   calendarSpacer : 0, // 캘린더/리마인더 일정 내용 사이 줄간격
 
   refreshTime : 60 * 10, // 새로고침 시간(단위 : 초)
@@ -272,12 +274,12 @@ function setCalendarWidget() {
     if(isCalendarRight) line.addSpacer()
     setText(line, localeJSON.calendar,userSetting.fontSize.small, true)
     if(calendarNum == 0) {
-      setText(line, ' 0', userSetting.fontSize.small, true, userSetting.color.gray)
+      setText(line, ' 0', userSetting.fontSize.small, true, userSetting.color.calendarCount)
     }
     else {
       if(calendarJSON.length > calendarNum) {
         let text = ' +'+(calendarJSON.length-calendarNum)
-        setText(line, text, userSetting.fontSize.small, true, userSetting.color.gray)
+        setText(line, text, userSetting.fontSize.small, true, userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(calendarNum, calendarJSON,
@@ -301,12 +303,12 @@ function setCalendarWidget() {
     if(isCalendarRight) line.addSpacer()
     setText(line, localeJSON.reminder, userSetting.fontSize.small, true)
     if(reminderNum == 0) {
-      setText(line, '0', userSetting.fontSize.small, true, userSetting.color.gray)
+      setText(line, '0', userSetting.fontSize.small, true, userSetting.color.calendarCount)
     }
     else {
       if(reminderJSON.length > reminderNum) {
         let text = ' +'+(reminderJSON.length-reminderNum)
-        setText(line, text, userSetting.fontSize.small, true, userSetting.color.gray)
+        setText(line, text, userSetting.fontSize.small, true, userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(reminderNum, reminderJSON,
@@ -503,7 +505,8 @@ function getCalendarContent(num, json, right, isCalendar) {
   draw.fillEllipse(new Rect(0, 0, 200, 200))
   let circle = draw.getImage()
 
-  dateFormatter.dateFormat = 'd'
+  dateFormatter.dateFormat = 'M'
+  const thisMonth = dateFormatter.string(new Date())
 
   for(let i = 0 ; i < num; i++ ) {
     line = stack.addStack()
@@ -524,13 +527,33 @@ function getCalendarContent(num, json, right, isCalendar) {
     // In calendar set period
     let period = ''
     if(isCalendar && calendarPeriod != 'today') {
-      let startDate = json[i].startDate
-      let endDate = json[i].endDate
-      if(startDate != null && endDate != null) {
-        startDate = dateFormatter.string(startDate)
-        endDate = dateFormatter.string(endDate)
-        if(startDate == endDate) period += startDate // 당일
-        else period = startDate + '-' + endDate
+      const start = json[i].startDate
+      const end = json[i].endDate
+
+      if(start != null && end != null) {
+        dateFormatter.dateFormat = 'M'
+        const startMonth = dateFormatter.string(start)
+        const endMonth = dateFormatter.string(end)
+
+        dateFormatter.dateFormat = 'd'
+        const startDate = dateFormatter.string(start)
+        const endDate = dateFormatter.string(start)
+
+        if(startDate == endDate) {
+          if(startMonth == thisMonth) period += startDate
+          else period += startMonth + '/' + startDate
+        } // 당일
+        else if(endMonth != thisMonth) {
+          if(startMonth == endMonth) {
+            period += startMonth + '/' + startDate + '-' + endDate
+          }
+          else {
+            period += startMonth + '/' + startDate + '-' + endMonth + '/' + endDate
+          }
+        }
+        else {
+          period = startDate + '-' + endDate
+        }
         period += ' | '
       }
     }
