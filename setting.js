@@ -1,6 +1,3 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: teal; icon-glyph: magic;
 const localFM = FileManager.local()
 const iCloud = FileManager.iCloud()
 
@@ -382,7 +379,7 @@ const size_row = () => {
     row = new UITableRow()
     cell = UITableCell.text('','캘린더 일정 시간 보기')
     row.addCell(cell)
-    if(large_change == 0 || large_change == 2) arr.push(row)
+    //if(large_change == 0 || large_change == 2) arr.push(row)
 
     row = new UITableRow()
     const calendar_time_left = UITableCell.button('◀️')
@@ -397,7 +394,7 @@ const size_row = () => {
     row.addCell(calnedar_time_name)
     row.addCell(calendar_time_right)
 
-    if(large_change == 0 || large_change == 2) arr.push(row)
+    //if(large_change == 0 || large_change == 2) arr.push(row)
     
 
     // Wheater to left align or right align
@@ -712,9 +709,13 @@ async function saveSetting() {
       newJSON.largeWidgetSetting = [false, true]
     }
     else {
-      const calendarPeriod = ['today', 'thisWeek', 'thisMonth', '7days', '30days', calendar_period+'days']
+      const calendarPeriod = ['today', 'thisWeek', 'thisMonth',
+                              '7days', '30days', 
+                              calendar_period+'days']
       newJSON.largeWidgetSetting = [true, large_change==2]
       newJSON.calendarPeriod = calendarPeriod[calendar_change].toString()
+      newJSON.showCalendarTime = calendar_time_change==0 ? 
+                                 'true':'false'
 
       for(let i in calendar_source_list) {
         if(calendar_source_status[i]) {
