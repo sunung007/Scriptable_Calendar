@@ -1,10 +1,12 @@
 /*
+위젯명 : Gofo_달력 위젯
+
 본 코드는 Gofo에 의해 작성되었습니다.
 본 코드를 복제/공유 시 발생하는 문제에 대해서는 책임지지 않으며, 전적으로 사용자에게 책임이 있습니다.
 
 본 위젯은 Scriptable을 이용합니다.
 본 위젯 및 코에 대한 자세한 내용 및 문의는 아래를 참고해주십시오.
-https://gofo-coding.tistory.com/category/Scriptable/%EB%8B%AC%EB%A0%A5%20%EC%9C%84%EC%A0%AF
+https://gofo-coding.tistory.com/category/Scriptable/코로나%20위젯
 */
 
 // Part : user
@@ -19,10 +21,10 @@ const userSetting = {
     /*...*/
   ],
 
-  buttonSize   : 16,   // 버튼 크기
+  buttonSize   : 16,  // 버튼 크기
   buttonSpacer : 10, // 버튼 사이 간격
 
-  // 글자 관련
+  // 글자 크기
   fontSize : {       // 글자 크기
     extraSmall : 12, // 일정 내용
     small      : 13, // 일정/미리알림/월 타이틀
@@ -30,23 +32,23 @@ const userSetting = {
     battery    : 12, // 배터리 정보
   },
 
+  // 글꼴 : 프로파일 이름과 정확히 일치해야합니다.
+  // 프로파일 : 설정 > 일반 > 프로파일
+  // 프로파일 입력 시 따옴표('')로 감싸야합니다.
+  // 예시 : 'Nanum'
   font : {
-    // 글꼴 : 프로파일 이름과 정확히 일치해야합니다.
-    // 프로파일 : 설정 > 일반 > 프로파일
-    // 프로파일 입력 시 따옴표('')로 감싸야합니다.
-    // 예시 : 'Nanum'
     normal : null,
     bold : null,
   },
 
-  // 색상 관련
+  // 색상 : 따옴표('') 안에 hex값으로 넣으세요.
   color  : {
-    // 따옴표('') 안에 hex값으로 넣으세요.
     red  : 'F51673',
     blue : '2B69F0',
-    saturday : '545454',
-    sunday   : '545454',
-    calendarCount : '545454',
+    today  : 'F51673',   // 달력의 오늘 날짜의 동그라미
+    saturday : '545454', // 달력의 토요일
+    sunday   : '545454', // 달력의 일요일
+    calendarCount : '545454', // 일정/미리알림 옆에 글씨
   },
 
   calendarNumber : 2, // 캘린더/리마인더 각 일정의 개수
@@ -64,7 +66,8 @@ const iCloud = FileManager.iCloud()
 
 const localDirectory = localFM.documentsDirectory()
 const iCloudDirectory = iCloud.documentsDirectory()
-const path = localFM.joinPath(localDirectory,'Gofo-calendar-widget-data-')
+const path = localFM.joinPath(localDirectory,
+             'Gofo-calendar-widget-data-')
 
 const widget = new ListWidget()
 const dateFormatter = new DateFormatter()
@@ -128,8 +131,6 @@ async function updateScript() {
   const request = await new Request(url).loadJSON()
   const new_version = Number(request.version)
   const cur_version = Number(scriptVersion.substring(17))
-
-  console.log(cur_version);
   
   // install update file
   if(new_version > cur_version) {
@@ -165,7 +166,7 @@ function createWidget() {
     
     box = outbox.addStack();
     box.layoutVertically();  
-    box.addSpacer((userSetting.buttonSize-userSetting.fontSize.battery)/2);
+    box.centerAlignContent();
 
     setBatteryWidget();
 
@@ -189,10 +190,12 @@ function setBatteryWidget() {
   // Add, color, and resize battery icon.
   content = line.addImage(image)
   if(Device.isCharging()) {
-    content.imageSize = new Size(userSetting.fontSize.battery*1.8, userSetting.fontSize.battery)
+    content.imageSize = new Size(userSetting.fontSize.battery*1.8, 
+                                 userSetting.fontSize.battery)
     content.tintColor = Color.green()
   } else {
-    content.imageSize = new Size(userSetting.fontSize.battery*2, userSetting.fontSize.battery)
+    content.imageSize = new Size(userSetting.fontSize.battery*2, 
+                                 userSetting.fontSize.battery)
     if(batteryLevel*100 <= 20) content.tintColor = Color.red()
     else content.tintColor = contentColor
   }
@@ -200,24 +203,24 @@ function setBatteryWidget() {
   line.addSpacer(2)
 
   // Text
-  setText(line, Math.floor(batteryLevel*100)+'%',
+  setText(line, Math.floor(batteryLevel*100) + '%',
           userSetting.fontSize.battery)
 }
 
 // Make buttons.
 function setButtonsWidget() {
   const shortcutURL = 'shortcuts://run-shortcut?name='
-  let button, image
+  let button
 
   stack = outbox.addStack()
   const buttons = userSetting.buttons
   for(let i = 0 ; i < buttons.length ; i++) {
     stack.addSpacer(userSetting.buttonSpacer)
 
-    image = SFSymbol.named(buttons[i][0]).image
-    button = stack.addImage(image)
+    button = stack.addImage(SFSymbol.named(buttons[i][0]).image)
     button.tintColor = contentColor
-    button.imageSize = new Size(userSetting.buttonSize, userSetting.buttonSize)
+    button.imageSize = new Size(userSetting.buttonSize, 
+                                userSetting.buttonSize)
 
     // If url is url scheme of baisc app
     if(buttons[i][1].indexOf('://') < 0) {
@@ -273,14 +276,17 @@ function setCalendarWidget() {
     stack.url = 'calshow://'
     line = stack.addStack()
     if(isCalendarRight) line.addSpacer()
-    setText(line, localeJSON.calendar,userSetting.fontSize.small, true)
+    setText(line, localeJSON.calendar,
+            userSetting.fontSize.small, true)
     if(calendarNum == 0) {
-      setText(line, ' 0', userSetting.fontSize.small, true, userSetting.color.calendarCount)
+      setText(line, ' 0', userSetting.fontSize.small, true, 
+              userSetting.color.calendarCount)
     }
     else {
       if(calendarJSON.length > calendarNum) {
         let text = ' +'+(calendarJSON.length-calendarNum)
-        setText(line, text, userSetting.fontSize.small, true, userSetting.color.calendarCount)
+        setText(line, text, userSetting.fontSize.small, true, 
+                userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(calendarNum, calendarJSON,
@@ -302,14 +308,17 @@ function setCalendarWidget() {
     line = stack.addStack()
 
     if(isCalendarRight) line.addSpacer()
-    setText(line, localeJSON.reminder, userSetting.fontSize.small, true)
+    setText(line, localeJSON.reminder,
+            userSetting.fontSize.small, true)
     if(reminderNum == 0) {
-      setText(line, '0', userSetting.fontSize.small, true, userSetting.color.calendarCount)
+      setText(line, '0', userSetting.fontSize.small, true, 
+              userSetting.color.calendarCount)
     }
     else {
       if(reminderJSON.length > reminderNum) {
         let text = ' +'+(reminderJSON.length-reminderNum)
-        setText(line, text, userSetting.fontSize.small, true, userSetting.color.calendarCount)
+        setText(line, text, userSetting.fontSize.small, true, 
+                userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(reminderNum, reminderJSON,
@@ -323,7 +332,7 @@ function setMonthlyDateWidget() {
   const days = [localeJSON.sun, localeJSON.mon, localeJSON.tue,
                 localeJSON.wen, localeJSON.thu, localeJSON.fri,
                 localeJSON.sat]
-  let width = userSetting.fontSize.monthly*1.4
+  const width = userSetting.fontSize.monthly*1.4
   let content, color
 
   let date = new Date()
@@ -340,10 +349,12 @@ function setMonthlyDateWidget() {
 
   // month
   dateFormatter.dateFormat = 'MMM'
-  setText(box, dateFormatter.string(date), userSetting.fontSize.small, true)
+  setText(box, dateFormatter.string(date), 
+          userSetting.fontSize.small, true)
   box.addSpacer(6);
   stack = box.addStack()
   stack.layoutHorizontally()
+  
 
   // 내용
   for(let i = 0 ; i < 7 ; i++) {
@@ -353,39 +364,49 @@ function setMonthlyDateWidget() {
     line.size = new Size(width, 0)
 
     let inline = line.addStack()
-    inline.size = new Size(width, 0)
+    inline.size = new Size(width, width)
     inline.layoutHorizontally()
     inline.centerAlignContent()
 
-    let color = (i==0?userSetting.color.sunday:(i==6?userSetting.color.saturday:null))
+    let color = (i==0 ? userSetting.color.sunday:
+                        (i==6?userSetting.color.saturday:null))
 
     // 요일
-    setText(inline, days[i], userSetting.fontSize.monthly, false, color)
+    setText(inline, days[i], 
+            userSetting.fontSize.monthly, false, color)
     line.addSpacer(5)
 
     // 공백
     if(i < firstDay) {
       inline = line.addStack()
-      inline.size = new Size(width, 0)
+      inline.size = new Size(width, width)
       inline.centerAlignContent()
       setText(inline, ' ', userSetting.fontSize.monthly)
       line.addSpacer(4)
     }
 
     // 날짜
-    let j = (i<firstDay? 8-firstDay+i : i-firstDay+1)
-    for( ; j <= lastDate ; j += 7) {
+    for(let j = (i<firstDay? 8-firstDay+i : i-firstDay+1) ;
+        j <= lastDate ; j += 7) {
       inline = line.addStack()
-      inline.size = new Size(width, 0)
+      inline.size = new Size(width, width)
       inline.centerAlignContent()
-
+      
       if(nowDate == j) {
-        setText(inline,j+'',userSetting.fontSize.monthly,true,
-                userSetting.color.red)
+        const draw = new DrawContext()
+        draw.size = new Size(width, width)
+        draw.opaque = false
+        draw.respectScreenScale = true
+        draw.setFillColor(new Color(userSetting.color.today))
+        draw.fillEllipse(new Rect(0, 0, width, width))
+                
+        setText(inline, j+'',
+                userSetting.fontSize.monthly, true, 'fff')
+        inline.backgroundImage = draw.getImage()
       }
       else {
-        setText(inline,j+'',userSetting.fontSize.monthly,
-                false,color)
+        setText(inline, j+'',
+                userSetting.fontSize.monthly, false, color)
       }
       line.addSpacer(4)
     }
@@ -500,11 +521,11 @@ function getBatteryImage(batteryLevel) {
 function getCalendarContent(num, json, right, isCalendar) {
   if(right != true) right = false
 
-  let draw = new DrawContext()
+  const draw = new DrawContext()
   draw.opaque = false
   draw.respectScreenScale = true
   draw.fillEllipse(new Rect(0, 0, 200, 200))
-  let circle = draw.getImage()
+  const circle = draw.getImage()
 
   dateFormatter.dateFormat = 'M'
   const thisMonth = dateFormatter.string(new Date())
@@ -512,12 +533,63 @@ function getCalendarContent(num, json, right, isCalendar) {
   for(let i = 0 ; i < num; i++ ) {
     line = stack.addStack()
     line.layoutHorizontally()
+    /*if(!showCalendarTime) */ 
     line.centerAlignContent()
 
     // Get title and bar's color from JSON file.
     title = json[i].title
     color = json[i].calendar.color.hex
 
+    // In calendar set period
+    let period = ''
+    if(isCalendar && calendarPeriod != 'today') {
+      const start = json[i].startDate
+      const end = json[i].endDate
+      
+      dateFormatter.dateFormat = 'M'
+      const startMonth = dateFormatter.string(start)
+      const endMonth = dateFormatter.string(end)
+  
+      dateFormatter.dateFormat = 'd'
+      const startDate = dateFormatter.string(start)
+      const endDate = dateFormatter.string(end)
+
+
+      // 하루 일정
+      if(startMonth == endMonth && startDate == endDate) {
+        // 이번 달 일정
+        if(startMonth == thisMonth) period += startDate
+        // 다음 달 일정
+        else period += startMonth + '/' + startDate
+      }
+      // 기간 일정
+      else {
+        // 이번 달 일정
+        if(startMonth == endMonth) {
+          period += startMonth + '/' + startDate 
+                    + '-' + endDate
+        }
+        // 다음 달 일정
+        else {
+          period += startMonth + '/' + startDate 
+                    + '-' + endMonth + '/' + endDate
+        }
+      }
+      period += ' | '
+      /*
+      if(showCalendarTime) {
+        // 하루 일정
+        if(startMonth == endMonth && startDate == endDate) {
+          dateFormatter.dateFormat = 'M/d H:mm-'
+          period = dateFormatter.string(start)
+          dateFormatter.dateFormat = 'H:mm'
+          period += dateFormatter.string(end) + ' | '
+        }
+      }
+      */
+    }
+    
+    
     // Draw circle
     if(right) line.addSpacer()
     content = line.addImage(circle)
@@ -525,45 +597,10 @@ function getCalendarContent(num, json, right, isCalendar) {
                                  userSetting.fontSize.extraSmall-9)
     content.tintColor = new Color(color)
 
-    // In calendar set period
-    let period = ''
-    if(isCalendar && calendarPeriod != 'today') {
-      const start = json[i].startDate
-      const end = json[i].endDate
-
-      if(start != null && end != null) {
-        dateFormatter.dateFormat = 'M'
-        const startMonth = dateFormatter.string(start)
-        const endMonth = dateFormatter.string(end)
-
-        dateFormatter.dateFormat = 'd'
-        const startDate = dateFormatter.string(start)
-        const endDate = dateFormatter.string(start)
-
-        if(startDate == endDate) {
-          if(startMonth == thisMonth) period += startDate
-          else period += startMonth + '/' + startDate
-        } // 당일
-        else if(endMonth != thisMonth) {
-          if(startMonth == endMonth) {
-            period += startMonth + '/' + startDate + '-' + endDate
-          }
-          else {
-            period += startMonth + '/' + startDate + '-' + endMonth + '/' + endDate
-          }
-        }
-        else {
-          period = startDate + '-' + endDate
-        }
-        period += ' | '
-      }
-    }
-
     // Add text
     content = setText(line, period + title, 
                       userSetting.fontSize.extraSmall)
     content.lineLimit = 1
-    
     stack.addSpacer(userSetting.calendarSpacer)
   }
 }
@@ -701,24 +738,29 @@ async function setWidgetAttribute() {
           (calendarList[i]))
         }
       } catch {
-        await setAlert(['확인'], '캘린더 지정', '캘린더가 올바르게 지정되지 않았습니다. 다시 지정해주세요.')
+        await setAlert(['확인'], '캘린더 지정',
+                       '캘린더가 올바르게 지정되지 않았습니다. '
+                       + '다시 지정해주세요.')
         fetchSettingScript(true)
       }
     }
   }
 
   if(backgroundType == 'bookmark') {
-    widget.backgroundImage = await localFM.readImage(settingJSON.bookmark)
+    widget.backgroundImage 
+           = await localFM.readImage(settingJSON.bookmark)
   }
   else if(backgroundType == 'background') {
-    widget.backgroundImage = await localFM.readImage(path + 'backgroundImage')
+    widget.backgroundImage
+           = await localFM.readImage(path + 'backgroundImage')
   }
   else if(backgroundType == 'color') {
     setColor(0, Number(settingJSON.backgroundColorNumber))
   }
   else if(backgroundType == 'invisible') {
     settingJSON.backgroundType = 'background'
-    widget.backgroundImage = await localFM.readImage(path + 'backgroundImage')
+    widget.backgroundImage 
+           = await localFM.readImage(path + 'backgroundImage')
 
     localFM.writeString(path+'settingJSON',
                         JSON.stringify(settingJSON))
@@ -739,7 +781,6 @@ async function setWidgetAttribute() {
       console.log('Save setting script.')
       iCloud.writeString(filePath, request)
       run = true
-      console.log(request)
     }
 
     if(run) {
