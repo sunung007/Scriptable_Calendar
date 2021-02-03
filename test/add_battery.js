@@ -1,6 +1,3 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: orange; icon-glyph: calendar-alt;
 /*
 위젯명 : Gofo_달력 위젯
 
@@ -16,7 +13,7 @@ https://gofo-coding.tistory.com/category/Scriptable/코로나%20위젯
 const userSetting = {
   // 버튼 관련
   buttons  : [   // 위젯 아래의 버튼들
-                 // 형식 : ['SF symbol name', '단축어 이름이나 앱 url scheme']
+    // 형식 : ['SF symbol name', '단축어 이름이나 앱 url scheme']
     ['viewfinder.circle', 'kakaotalk://con/web?url=https://accounts.kakao.com/qr_check_in'], // QR 체크인
     ['k.circle', 'kakaopay://'],              // 카카오페이
     ['p.circle', 'photos-redirect://'],       // 사진
@@ -29,9 +26,10 @@ const userSetting = {
 
   // 글자 크기
   fontSize : {       // 글자 크기
-    extraSmall : 12, // 일정 내용, 배터리 정보, 날씨
+    extraSmall : 12, // 일정 내용
     small      : 13, // 일정/미리알림/월 타이틀
     monthly    : 9,  // 달력
+    battery    : 12, // 배터리 정보
   },
 
   // 글꼴 : 프로파일 이름과 정확히 일치해야합니다.
@@ -57,13 +55,6 @@ const userSetting = {
   calendarSpacer : 0, // 캘린더/리마인더 일정 내용 사이 줄간격
 
   refreshTime : 60 * 10, // 새로고침 시간(단위 : 초)
-
-  /*
- 아래 사이트에 들어가서 활용 신청한 후 발급받은 일반 인증키를 붙여넣으시면 됩니다!
- 웬만하면 발급 받으시는게 좋을겁니다... 터지면 저는 재발급받을테니까요..
- https://data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15057682
- */
-  appKey : 'e8AFfWnF9M5a355DPc9CSmzWHBW5JhXMfqg7vsEVIcqr9ZaS70Ahr%2FETSdFC1o5TUybHaANphNqbJR0aeZj6dA%3D%3D',
 }
 
 // ============================================================
@@ -76,14 +67,13 @@ const iCloud = FileManager.iCloud()
 const localDirectory = localFM.documentsDirectory()
 const iCloudDirectory = iCloud.documentsDirectory()
 const path = localFM.joinPath(localDirectory,
-    'Gofo-calendar-widget-data-')
+             'Gofo-calendar-widget-data-')
 
 const widget = new ListWidget()
 const dateFormatter = new DateFormatter()
 dateFormatter.locale = 'ko-Kore_KR'
 
 let settingJSON = {}
-let weatherJSON = {}
 let calendarJSON = {}
 let reminderJSON = {}
 let localeJSON = {}
@@ -113,8 +103,8 @@ await fetchJSONs()
 createWidget()
 
 // Refresh for every minute.
-widget.refreshAfterDate = new Date(Date.now() +
-    (1000 * userSetting.refreshTime))
+widget.refreshAfterDate = new Date(Date.now() + 
+                                  (1000 * userSetting.refreshTime))
 widget.setPadding(10,10,10,10)
 
 if(settingJSON.backgroundType != 'invisible') {
@@ -131,28 +121,28 @@ Script.complete()
 async function updateScript() {
   const url = 'https://raw.githubusercontent.com/sunung007/Scriptable_Calendar/main/version.json'
   const updatePath = iCloud.joinPath(iCloudDirectory,
-      'Gofo_달력 위젯 업데이트.js')
-
+                                     'Gofo_달력 위젯 업데이트.js')
+                                    
   if(iCloud.fileExists(updatePath)) {
     iCloud.remove(updatePath)
   }
-
+  
   // version check
   const request = await new Request(url).loadJSON()
   const new_version = Number(request.version)
   const cur_version = Number(scriptVersion.substring(17))
-
+  
   // install update file
   if(new_version > cur_version) {
     const noti = new Notification()
     noti.title = '[Gofo] 달력 위젯'
     noti.body = '새로운 업데이트 파일이 있습니다. 업데이트를 진행합니다.'
     noti.schedule()
-
+    
     const update = await new Request(request.path).loadString()
     iCloud.writeString(updatePath, update)
-    await WebView.loadURL('scriptable:///run/'
-        + encodeURI('Gofo_달력 위젯 업데이트'))
+    await WebView.loadURL('scriptable:///run/' 
+                          + encodeURI('Gofo_달력 위젯 업데이트'))
   }
 }
 
@@ -173,18 +163,12 @@ function createWidget() {
 
     container.addSpacer();
     outbox = container.addStack();
-    outbox.centerAlignContent();
-
+    
     box = outbox.addStack();
-    box.layoutVertically();
+    box.layoutVertically();  
     box.centerAlignContent();
-    setBatteryWidget(); // battery
 
-    outbox.addSpacer(4);
-    box = outbox.addStack();
-    box.layoutVertically();
-    box.centerAlignContent();
-    setWeatherWidget(); // weather
+    setBatteryWidget();
 
     outbox.addSpacer();
     setButtonsWidget(); // buttons
@@ -206,12 +190,12 @@ function setBatteryWidget() {
   // Add, color, and resize battery icon.
   content = line.addImage(image)
   if(Device.isCharging()) {
-    content.imageSize = new Size(userSetting.fontSize.extraSmall*1.8,
-        userSetting.fontSize.extraSmall)
+    content.imageSize = new Size(userSetting.fontSize.battery*1.8, 
+                                 userSetting.fontSize.battery)
     content.tintColor = Color.green()
   } else {
-    content.imageSize = new Size(userSetting.fontSize.extraSmall*2,
-        userSetting.fontSize.extraSmall)
+    content.imageSize = new Size(userSetting.fontSize.battery*2, 
+                                 userSetting.fontSize.battery)
     if(batteryLevel*100 <= 20) content.tintColor = Color.red()
     else content.tintColor = contentColor
   }
@@ -220,71 +204,7 @@ function setBatteryWidget() {
 
   // Text
   setText(line, Math.floor(batteryLevel*100) + '%',
-      userSetting.fontSize.extraSmall)
-}
-
-// Make weather widget
-async function setWeatherWidget() {
-  let response, temp, rain, sky, volume;
-
-  try {
-    response = weatherJSON.response;
-  }
-  catch {
-    console.error('ERROR in extract data frorm weather json.');
-    console.error('다시 시도해주시기 바랍니다.');
-    return;
-  }
-
-  // Error code in loading weather
-  if(response.header.resultCode != '00') {
-    console.error('ERROR in weather loading : ' +
-        response.header.resultCode);
-    console.error(response.header.resultMsg);
-    return null;
-  }
-
-  // Extract weather data from JSON file.
-  const weatherItems = response.body.items.item;
-  const totalCount = Number(response.body.totalCount);
-  const fcstTime = weatherItems[0].fcstTime;
-
-  for(let i in weatherItems) {
-    if(weatherItems[i].fcstTime == fcstTime) {
-      const category = weatherItems[i].category;
-      if(category == 'T1H') {
-        temp = weatherItems[i].fcstValue+'℃';
-      }
-      else if(category == 'SKY') {
-        sky = Number(weatherItems[i].fcstValue) -1;
-      }
-      else if(category == 'PTY') {
-        rain = weatherItems[i].fcstValue;
-      }
-      else if(category == 'RN1') {
-        volume = weatherItems[i].fcstValue;
-      }
-    }
-  }
-
-  let line, content;
-  if(VIEW_MODE == 2) {
-    line = box.addStack();
-    line.layoutHorizontally();
-    line.centerAlignContent();
-    line.url = 'http://weather.naver.com';
-
-    // icon
-    content = line.addImage(getWeatherImage(rain, sky, volume));
-    content.tintColor = contentColor;
-    content.imageSize = new Size(userSetting.fontSize.extraSmall*2,
-        userSetting.fontSize.extraSmall*1.1);
-
-    line.addSpacer(2);
-
-    // temperature
-    setText(line, temp, userSetting.fontSize.extraSmall);
-  }
+          userSetting.fontSize.battery)
 }
 
 // Make buttons.
@@ -299,8 +219,8 @@ function setButtonsWidget() {
 
     button = stack.addImage(SFSymbol.named(buttons[i][0]).image)
     button.tintColor = contentColor
-    button.imageSize = new Size(userSetting.buttonSize,
-        userSetting.buttonSize)
+    button.imageSize = new Size(userSetting.buttonSize, 
+                                userSetting.buttonSize)
 
     // If url is url scheme of baisc app
     if(buttons[i][1].indexOf('://') < 0) {
@@ -357,20 +277,20 @@ function setCalendarWidget() {
     line = stack.addStack()
     if(isCalendarRight) line.addSpacer()
     setText(line, localeJSON.calendar,
-        userSetting.fontSize.small, true)
+            userSetting.fontSize.small, true)
     if(calendarNum == 0) {
-      setText(line, ' 0', userSetting.fontSize.small, true,
-          userSetting.color.calendarCount)
+      setText(line, ' 0', userSetting.fontSize.small, true, 
+              userSetting.color.calendarCount)
     }
     else {
       if(calendarJSON.length > calendarNum) {
         let text = ' +'+(calendarJSON.length-calendarNum)
-        setText(line, text, userSetting.fontSize.small, true,
-            userSetting.color.calendarCount)
+        setText(line, text, userSetting.fontSize.small, true, 
+                userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(calendarNum, calendarJSON,
-          isCalendarRight, true)
+                         isCalendarRight, true)
     }
   }
 
@@ -389,20 +309,20 @@ function setCalendarWidget() {
 
     if(isCalendarRight) line.addSpacer()
     setText(line, localeJSON.reminder,
-        userSetting.fontSize.small, true)
+            userSetting.fontSize.small, true)
     if(reminderNum == 0) {
-      setText(line, '0', userSetting.fontSize.small, true,
-          userSetting.color.calendarCount)
+      setText(line, '0', userSetting.fontSize.small, true, 
+              userSetting.color.calendarCount)
     }
     else {
       if(reminderJSON.length > reminderNum) {
         let text = ' +'+(reminderJSON.length-reminderNum)
-        setText(line, text, userSetting.fontSize.small, true,
-            userSetting.color.calendarCount)
+        setText(line, text, userSetting.fontSize.small, true, 
+                userSetting.color.calendarCount)
       }
       stack.addSpacer(userSetting.calendarSpacer)
       getCalendarContent(reminderNum, reminderJSON,
-          isCalendarRight, false)
+                         isCalendarRight, false)
     }
   }
 }
@@ -410,8 +330,8 @@ function setCalendarWidget() {
 // Show monthly calendar when user choose option.
 function setMonthlyDateWidget() {
   const days = [localeJSON.sun, localeJSON.mon, localeJSON.tue,
-    localeJSON.wen, localeJSON.thu, localeJSON.fri,
-    localeJSON.sat]
+                localeJSON.wen, localeJSON.thu, localeJSON.fri,
+                localeJSON.sat]
   const width = userSetting.fontSize.monthly*1.4
   let content, color
 
@@ -429,12 +349,12 @@ function setMonthlyDateWidget() {
 
   // month
   dateFormatter.dateFormat = 'MMM'
-  setText(box, dateFormatter.string(date),
-      userSetting.fontSize.small, true)
+  setText(box, dateFormatter.string(date), 
+          userSetting.fontSize.small, true)
   box.addSpacer(6);
   stack = box.addStack()
   stack.layoutHorizontally()
-
+  
 
   // 내용
   for(let i = 0 ; i < 7 ; i++) {
@@ -449,11 +369,11 @@ function setMonthlyDateWidget() {
     inline.centerAlignContent()
 
     let color = (i==0 ? userSetting.color.sunday:
-        (i==6?userSetting.color.saturday:null))
+                        (i==6?userSetting.color.saturday:null))
 
     // 요일
-    setText(inline, days[i],
-        userSetting.fontSize.monthly, false, color)
+    setText(inline, days[i], 
+            userSetting.fontSize.monthly, false, color)
     line.addSpacer(5)
 
     // 공백
@@ -471,7 +391,7 @@ function setMonthlyDateWidget() {
       inline = line.addStack()
       inline.size = new Size(width, width)
       inline.centerAlignContent()
-
+      
       if(nowDate == j) {
         const draw = new DrawContext()
         draw.size = new Size(width, width)
@@ -479,14 +399,14 @@ function setMonthlyDateWidget() {
         draw.respectScreenScale = true
         draw.setFillColor(new Color(userSetting.color.today))
         draw.fillEllipse(new Rect(0, 0, width, width))
-
+                
         setText(inline, j+'',
-            userSetting.fontSize.monthly, true, 'fff')
+                userSetting.fontSize.monthly, true, 'fff')
         inline.backgroundImage = draw.getImage()
       }
       else {
         setText(inline, j+'',
-            userSetting.fontSize.monthly, false, color)
+                userSetting.fontSize.monthly, false, color)
       }
       line.addSpacer(4)
     }
@@ -514,17 +434,17 @@ async function fetchJSONs() {
         end.setMonth(end.getMonth() + 1)
         end.setDate(-1)
         calendarJSON = await CalendarEvent.between(today, end,
-            calendarSource)
+                                           calendarSource)
       }
       else if(calendarPeriod == 'thisWeek') {
         end.setDate(end.getDate() + 6 - end.getDay())
         calendarJSON = await CalendarEvent.between(today, end,
-            calendarSource)
+                                           calendarSource)
       }
       else {
         end.setDate(end.getDate()+parseInt(calendarPeriod))
         calendarJSON = await CalendarEvent.between(today, end,
-            calendarSource)
+                                           calendarSource)
       }
     }
     // Reminder
@@ -534,34 +454,6 @@ async function fetchJSONs() {
     }
   }
   catch { console.error('Error : Load calendar data') }
-
-  // Weather data.
-  let weatherURL;
-  let nx = -1, ny = -1;
-  while(nx+ny < 0) {
-    console.log('Loading current location data...');
-    try {
-      Location.setAccuracyToThreeKilometers();
-      let location = await Location.current();
-      let lat = location.latitude;
-      let lon = location.longitude;
-      // Change current location to grid(x, y)
-      let grid = changeLocationGrid(lat, lon);
-      nx = grid[0];
-      ny = grid[1];
-    }
-    catch { nx = ny = -1; }
-  }
-
-  try {
-    weatherURL = await getWeatherURL(nx, ny)
-    weatherJSON = await new Request(weatherURL).loadJSON()
-  }
-  catch {
-    console.error('Error : Load weather data')
-    console.error('URL : ' + weatherURL)
-  }
-
 
   // Function : Sort reminder content for date
   function sortReminder(a, b) {
@@ -625,136 +517,6 @@ function getBatteryImage(batteryLevel) {
   return draw.getImage()
 }
 
-// Functions about weather -----------------------------------
-// Function : Make and return weather request url.
-async function getWeatherURL(nx, ny) {
-  let weatherURL = 'http://apis.data.go.kr/1360000/'
-      + 'VilageFcstInfoService/getUltraSrtFcst?serviceKey='
-      + userSetting.appKey + '&numOfRows=60&dataType=JSON&base_date=';
-  let date = new Date();
-  let base_date, base_time;
-
-  dateFormatter.dateFormat = 'yyyyMMddHH30';
-
-  // Match with api's update time.
-  if(date.getMinutes() < 45) date.setHours(date.getHours()-1);
-  base_date = dateFormatter.string(date).substring(0, 8);
-  base_time = dateFormatter.string(date).substring(8);
-
-  // Return weather URL
-  weatherURL += base_date + '&base_time=' + base_time
-      + '&nx=' + nx + '&ny=' + ny;
-  return weatherURL;
-}
-
-// Function : Change latitude and longitude -> grid(x, y)
-function changeLocationGrid(lat, lon) {
-  const RE = 6371.00877
-  const GRID = 5.0
-  const SLAT1 = 30.0
-  const SLAT2 = 60.0
-  const OLON = 126.0
-  const OLAT = 38.0
-  const XO = 43
-  const YO = 136
-
-  const DEGRAD = Math.PI / 180.0
-  const RADDEG = 180.0 / Math.PI
-
-  const re = RE / GRID
-  const slat1 = SLAT1 * DEGRAD
-  const slat2 = SLAT2 * DEGRAD
-  const olon = OLON * DEGRAD
-  const olat = OLAT * DEGRAD
-
-  let sn = Math.tan(Math.PI*0.25 + slat2*0.5)
-      / Math.tan(Math.PI*0.25 + slat1*0.5)
-  sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn)
-  let sf = Math.tan(Math.PI*0.25 + slat1*0.5)
-  sf = (Math.pow(sf, sn) * Math.cos(slat1)) / sn
-  let ro = Math.tan(Math.PI*0.25 + olat*0.5)
-  ro = (re*sf) / Math.pow(ro, sn)
-
-  const rs = []
-  let ra = Math.tan(Math.PI*0.25 + lat*DEGRAD*0.5)
-  ra = (re*sf) / Math.pow(ra, sn)
-  let theta = lon*DEGRAD - olon
-  if(theta > Math.PI) theta -= 2.0 * Math.PI
-  if(theta < -Math.PI) theta += 2.0 * Math.PI
-  theta *= sn
-  rs[0] = Math.floor(ra*Math.sin(theta) + XO + 0.5)
-  rs[1] = Math.floor(ro - ra*Math.cos(theta) + YO + 0.5)
-
-  return rs
-}
-
-function getWeatherStatus(rain, sky) {
-  const skyArr = ['맑음', '구름조금', '구름많음', '흐림']
-  const rainArr = ['없음', '비', '비/눈', '눈', '소나기',
-    '빗방울', '비/눈', '눈날림']
-  if(rain == 0) return skyArr[sky]
-  else return rainArr[rain]
-}
-
-function getWeatherImage(rain, sky, volume) {
-  const iconArr = [
-    // 공통
-    'cloud.fill',            // 0. 흐림
-    'cloud.heavyrain.fill',  // 1. 많은 비(비, 소나기)
-    'cloud.sleet.fill',      // 2. 비/눈(빗방울/눈날림)
-    'snow',                  // 3. 눈(눈날림)
-                             // 아침
-    'sun.max.fill',          // 4. 맑음
-    'cloud.sun.fill',        // 5. 구름 조금
-    'cloud.sun.fill',        // 6. 구름 많음
-    'cloud.drizzle.fill',    // 7. 적은 비(비, 빗방울) + 일반
-    'cloud.sun.rain.fill',   // 8. 비 + 구름 적음
-                             // 저녁
-    'moon.stars.fill',       // 9. 맑음
-    'cloud.moon.fill',       // 10. 구름 조금
-    'cloud.moon.fill',       // 11. 구름 많음
-    'cloud.drizzle.fill',    // 12. 적은 비(비, 빗방울)
-    'cloud.moon.rain.fill'   // 13. 비 + 구름 적음
-  ]
-
-  let iconIndex
-  if(rain == 0) { // 맑음, 구름조금, 구름많음, 흐림(공통)
-    if(sky == 3) iconIndex = 0
-    else iconIndex = sky + 4
-  }
-  else {
-    if(rain == 3 || rain == 7) { iconIndex = 3 } // 눈(공통)
-    else if(rain == 2 || rain == 6) { iconIndex= 2 } // 비+눈(공통)
-    else { // 비
-      if(sky < 2) { iconIndex = 8 } // 비+구름적음
-      else if(volume > 5) { iconIndex = 1 } // 많은 비
-      else { iconIndex = 7 }// 적은 비
-    }
-  }
-
-  // A icon that is changed as time. (ex: sun -> moon)
-  let currentHour = new Date().getHours()
-  if((currentHour<7||currentHour>18) && iconIndex>3) {
-    iconIndex += 5
-  }
-
-  let height
-  if(iconIndex == 1) { height = 180 }
-  else if(iconIndex == 0 || iconIndex == 6 || iconIndex == 11) {
-    height = 150
-  }
-  else height = 200
-
-  const icon = SFSymbol.named(iconArr[iconIndex]).image
-  const draw = new DrawContext()
-  draw.size = new Size(200, height);
-  draw.opaque = false
-  draw.respectScreenScale = true
-  draw.drawImageInRect(icon, new Rect(0, 0, 200, height))
-
-  return draw.getImage()
-}
-
 // Make components of calender and reminder
 function getCalendarContent(num, json, right, isCalendar) {
   if(right != true) right = false
@@ -771,7 +533,7 @@ function getCalendarContent(num, json, right, isCalendar) {
   for(let i = 0 ; i < num; i++ ) {
     line = stack.addStack()
     line.layoutHorizontally()
-    /*if(!showCalendarTime) */
+    /*if(!showCalendarTime) */ 
     line.centerAlignContent()
 
     // Get title and bar's color from JSON file.
@@ -783,11 +545,11 @@ function getCalendarContent(num, json, right, isCalendar) {
     if(isCalendar && calendarPeriod != 'today') {
       const start = json[i].startDate
       const end = json[i].endDate
-
+      
       dateFormatter.dateFormat = 'M'
       const startMonth = dateFormatter.string(start)
       const endMonth = dateFormatter.string(end)
-
+  
       dateFormatter.dateFormat = 'd'
       const startDate = dateFormatter.string(start)
       const endDate = dateFormatter.string(end)
@@ -804,13 +566,13 @@ function getCalendarContent(num, json, right, isCalendar) {
       else {
         // 이번 달 일정
         if(startMonth == endMonth) {
-          period += startMonth + '/' + startDate
-              + '-' + endDate
+          period += startMonth + '/' + startDate 
+                    + '-' + endDate
         }
         // 다음 달 일정
         else {
-          period += startMonth + '/' + startDate
-              + '-' + endMonth + '/' + endDate
+          period += startMonth + '/' + startDate 
+                    + '-' + endMonth + '/' + endDate
         }
       }
       period += ' | '
@@ -826,17 +588,18 @@ function getCalendarContent(num, json, right, isCalendar) {
       }
       */
     }
-
+    
+    
     // Draw circle
     if(right) line.addSpacer()
     content = line.addImage(circle)
     content.imageSize = new Size(userSetting.fontSize.extraSmall-3,
-        userSetting.fontSize.extraSmall-9)
+                                 userSetting.fontSize.extraSmall-9)
     content.tintColor = new Color(color)
 
     // Add text
-    content = setText(line, period + title,
-        userSetting.fontSize.extraSmall)
+    content = setText(line, period + title, 
+                      userSetting.fontSize.extraSmall)
     content.lineLimit = 1
     stack.addSpacer(userSetting.calendarSpacer)
   }
@@ -876,7 +639,7 @@ function setColor(type, colorNumber) {
   let color
   if(colorNumber == 5) {
     colorNumber = Device.isUsingDarkAppearance() ?
-        type : 1-type
+                  type : 1-type
   }
   if(colorNumber == 0) color = Color.black()
   else if(colorNumber == 1) color = Color.white()
@@ -923,7 +686,7 @@ async function setAlert(content, title, message) {
 // Set basic settings of widget.
 async function setWidgetAttribute() {
   fetchSettingScript()
-
+  
   if(!localFM.fileExists(path+'settingJSON')) {
     return fetchSettingScript(true)
   }
@@ -933,15 +696,15 @@ async function setWidgetAttribute() {
   console.log('설정 파일을 로드 성공')
 
   if(settingJSON.backgroundType == 'invisible' &&
-      !localFM.fileExists(path+'backgroundImage')) {
+     !localFM.fileExists(path+'backgroundImage')) {
     await setAlert(['확인'], '투명 배경 설정',
         '투명 설정이 정상적으로 진행되지 않았습니다. 설정을 다시 진행합니다.')
 
     const scriptPath = iCloud.joinPath(iCloudDirectory,
-        'Gofo_투명 위젯 설정')
+                                       'Gofo_투명 위젯 설정')
     if(iCloud.fileExists(scriptPath)) {
       await WebView.loadURL('scriptable:///run/'
-          + encodeURI('Gofo_투명 위젯 설정'))
+                            + encodeURI('Gofo_투명 위젯 설정'))
     }
     else fetchSettingScript(true)
     settingModule.invisibleWidget()
@@ -960,7 +723,7 @@ async function setWidgetAttribute() {
   if(VIEW_MODE > 1) {
     let array = (settingJSON.largeWidgetSetting).split(',')
     let calendarList = settingJSON.calendarSource.split(',')
-
+    
     showCalendar[0] = array[0] == 'true'
     showCalendar[1] = array[1] == 'true'
     showCalendar[2] = array[2] == 'true'
@@ -976,34 +739,34 @@ async function setWidgetAttribute() {
         }
       } catch {
         await setAlert(['확인'], '캘린더 지정',
-            '캘린더가 올바르게 지정되지 않았습니다. '
-            + '다시 지정해주세요.')
+                       '캘린더가 올바르게 지정되지 않았습니다. '
+                       + '다시 지정해주세요.')
         fetchSettingScript(true)
       }
     }
   }
 
   if(backgroundType == 'bookmark') {
-    widget.backgroundImage
-        = await localFM.readImage(settingJSON.bookmark)
+    widget.backgroundImage 
+           = await localFM.readImage(settingJSON.bookmark)
   }
   else if(backgroundType == 'background') {
     widget.backgroundImage
-        = await localFM.readImage(path + 'backgroundImage')
+           = await localFM.readImage(path + 'backgroundImage')
   }
   else if(backgroundType == 'color') {
     setColor(0, Number(settingJSON.backgroundColorNumber))
   }
   else if(backgroundType == 'invisible') {
     settingJSON.backgroundType = 'background'
-    widget.backgroundImage
-        = await localFM.readImage(path + 'backgroundImage')
+    widget.backgroundImage 
+           = await localFM.readImage(path + 'backgroundImage')
 
     localFM.writeString(path+'settingJSON',
-        JSON.stringify(settingJSON))
+                        JSON.stringify(settingJSON))
 
     const filePath = iCloud.joinPath(iCloudDirectory,
-        'Gofo_투명 위젯 설정.js')
+                                     'Gofo_투명 위젯 설정.js')
     if(iCloud.fileExists(filePath)) iCloud.remove(filePath)
   }
 
@@ -1011,7 +774,7 @@ async function setWidgetAttribute() {
   async function fetchSettingScript(run) {
     const url = 'https://raw.githubusercontent.com/sunung007/Scriptable_Calendar/main/setting.js'
     const filePath = iCloud.joinPath(iCloud.documentsDirectory(),
-        'Gofo_달력 위젯 설정.js')
+                                     'Gofo_달력 위젯 설정.js')
 
     if(!iCloud.fileExists(filePath)) {
       const request = await new Request(url).loadString()
@@ -1022,7 +785,7 @@ async function setWidgetAttribute() {
 
     if(run) {
       await WebView.loadURL('scriptable:///run/'
-          + encodeURI('Gofo_달력 위젯 설정'))
+                            + encodeURI('Gofo_달력 위젯 설정'))
     }
   }
 }

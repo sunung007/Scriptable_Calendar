@@ -1,3 +1,6 @@
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: orange; icon-glyph: cog;
 const localFM = FileManager.local()
 const iCloud = FileManager.iCloud()
 
@@ -24,7 +27,7 @@ const language_list = ['한국어', '영어']
 
 
 const all_calendar_source = await Calendar.forEvents()
-let saved_calendar_source 
+let saved_calendar_source
 
 if(settingJSON.calendarSource != null) {
   saved_calendar_source = settingJSON.calendarSource.split(',')
@@ -46,19 +49,19 @@ for(let i in all_calendar_source) {
 // ============================================================
 
 let background_change = settingJSON.backgroundType == null ?
-                        0 : settingJSON.backgroundType
+    0 : settingJSON.backgroundType
 let back_color_change = settingJSON.backgroundColorNumber == null ?
-                      0 : Number(settingJSON.backgroundColorNumber)
+    0 : Number(settingJSON.backgroundColorNumber)
 let background_image
 let background_bookmark
 let content_change = settingJSON.contentColor == null ?
-                     0 : Number(settingJSON.contentColor)
+    0 : Number(settingJSON.contentColor)
 // let size_change = settingJSON.widgetSize == null ?
 //                   0 : Number(settingJSON.widgetSize)-1
 let size_change = 1
 let large_setting = settingJSON.largeWidgetSetting == null ?
-                    ['true','true','true'] :
-                    settingJSON.largeWidgetSetting.split(',')
+    ['true','true','true'] :
+    settingJSON.largeWidgetSetting.split(',')
 let monthly_change = large_setting[2] == 'true' ? 0 : 1
 let large_change
 let calendar_time_change = settingJSON.showCalendarTime == 'true' ? 0 : 1
@@ -156,7 +159,7 @@ const background_row = () => {
 
   background_left.onTap = () => {
     background_change = background_change==0 ?
-                        3:background_change-1
+        3:background_change-1
     rows[4] = background_row()
     refreshAllRows()
   }
@@ -175,7 +178,7 @@ const background_row = () => {
 
   color_left.onTap = () => {
     back_color_change = back_color_change==0 ?
-                        5:back_color_change-1
+        5:back_color_change-1
     rows[4] = background_row()
     refreshAllRows()
   }
@@ -195,10 +198,10 @@ const background_row = () => {
   background_choice.onTap = async () => {
     if(background_change == 1) {
       let img = await Photos.fromLibrary()
-      if(img != null) background_image = img 
+      if(img != null) background_image = img
     }
     else if(background_change == 2) {
-      const allBookmarks = await localFM.allFileBookmarks()    
+      const allBookmarks = await localFM.allFileBookmarks()
       let list = []
       for(let i in allBookmarks) {
         list.push(allBookmarks[i].name)
@@ -349,23 +352,23 @@ const size_row = () => {
     row.addCell(calendar_period_right)
 
     if(calendar_change == 5) arr.push(row)
-    
-    
+
+
     // Calendar source
     row = new UITableRow()
     cell = UITableCell.text('','캘린더 종류 선택')
     row.addCell(cell)
     if(large_change == 0 || large_change == 2) arr.push(row)
-  
+
     if(large_change == 0 || large_change == 2) {
       for(let i in calendar_source_list) {
         row = new UITableRow()
         cell = UITableCell.button(calendar_source_list[i] + '  |  ' + (calendar_source_status[i] ? '보기' : '보지않기'))
         cell.centerAligned()
         row.addCell(cell)
-        
+
         arr.push(row)
-        
+
         cell.onTap = () => {
           calendar_source_status[i] = !calendar_source_status[i]
           rows[10] = size_row()
@@ -395,7 +398,7 @@ const size_row = () => {
     row.addCell(calendar_time_right)
 
     //if(large_change == 0 || large_change == 2) arr.push(row)
-    
+
 
     // Wheater to left align or right align
     row = new UITableRow()
@@ -655,7 +658,7 @@ function setUITable() {
   // widget size and components
   addTextRow('위젯 구성')
   addRow(size_row())
-  
+
   division()
 
   // language
@@ -710,12 +713,12 @@ async function saveSetting() {
     }
     else {
       const calendarPeriod = ['today', 'thisWeek', 'thisMonth',
-                              '7days', '30days', 
-                              calendar_period+'days']
+        '7days', '30days',
+        calendar_period+'days']
       newJSON.largeWidgetSetting = [true, large_change==2]
       newJSON.calendarPeriod = calendarPeriod[calendar_change].toString()
-      newJSON.showCalendarTime = calendar_time_change==0 ? 
-                                 'true':'false'
+      newJSON.showCalendarTime = calendar_time_change==0 ?
+          'true':'false'
 
       for(let i in calendar_source_list) {
         if(calendar_source_status[i]) {
@@ -818,37 +821,37 @@ async function setAlert(content, title, message) {
 
 async function fetchInvisibleScript() {
   let message = '투명 위젯은 배경화면을 위젯의 위치와 크기에 맞게 잘라서 '
-                  + '배경으로 사용하여 투명한 것처럼 보이게 하는 것입니다.\n\n'
-                + '진행 전 홈화면 편집모드에서 빈 배경화면의 스크린샷을 '
-                + '준비해주세요.\n\n'
-                +'이후 뜨는 사진 선택에서 빈 배경화면의 사진을 선택해주세요.'
+      + '배경으로 사용하여 투명한 것처럼 보이게 하는 것입니다.\n\n'
+      + '진행 전 홈화면 편집모드에서 빈 배경화면의 스크린샷을 '
+      + '준비해주세요.\n\n'
+      +'이후 뜨는 사진 선택에서 빈 배경화면의 사진을 선택해주세요.'
   let result = await setAlert(['취소','확인'],'투명 위젯 만들기',message)
   if(result == 0) return null
 
   // This source is from mzeryck's code.
   let url = 'https://gist.githubusercontent.com/mzeryck/'
-            + '3a97ccd1e059b3afa3c6666d27a496c9/raw/'
-            + '54587f26d0b1ca7830c8d102cd786382248ff16f/'
-            + 'mz_invisible_widget.js'
+      + '3a97ccd1e059b3afa3c6666d27a496c9/raw/'
+      + '54587f26d0b1ca7830c8d102cd786382248ff16f/'
+      + 'mz_invisible_widget.js'
   const widgetSize = ['Small', 'Medium', 'Large']
   const oldPosition = ['left', 'right', 'top', 'middle', 'bottom',
-                       'Top', 'Middle', 'Bottom']
+    'Top', 'Middle', 'Bottom']
   const newPosition = ['왼쪽', '오른쪽', '상단', '중앙', '하단',
-                       '상단', '중앙', '하단']
+    '상단', '중앙', '하단']
   const oldMessages = ["It looks like you selected an image that isn't an iPhone screenshot, or your iPhone is not supported. Try again with a different image.",
-"What type of iPhone do you have?",
-"Note that your device only supports two rows of widgets, so the middle and bottom options are the same.",
-'What position will it be in?',
-'["Top left","Top right","Middle left","Middle right","Bottom left","Bottom right"]',
-'["Top","Middle","Bottom"]',
-'["Top","Bottom"]']
+    "What type of iPhone do you have?",
+    "Note that your device only supports two rows of widgets, so the middle and bottom options are the same.",
+    'What position will it be in?',
+    '["Top left","Top right","Middle left","Middle right","Bottom left","Bottom right"]',
+    '["Top","Middle","Bottom"]',
+    '["Top","Bottom"]']
   const newMessages = ["휴대폰 사이즈와 선택한 이미지의 크기가 다릅니다. 홈화면 편집모드에서 빈화면의 스크린샷을 찍고, 해당 이미지를 선택하세요.",
-"현재 사용 중인 기기의 모델을 선택하세요.",
-"이 기종은 '중앙'과 '하단' 옵션의 결과물이 동일합니다.",
-"위젯이 홈화면에서 놓일 위치를 선택해주세요",
-'["상단 왼쪽","상단 오른쪽","중앙 왼쪽","중앙 오른쪽", "하단 왼쪽", "하단 오른쪽"]',
-'["상단","중앙","하단"]',
-'["상단","하단"]']
+    "현재 사용 중인 기기의 모델을 선택하세요.",
+    "이 기종은 '중앙'과 '하단' 옵션의 결과물이 동일합니다.",
+    "위젯이 홈화면에서 놓일 위치를 선택해주세요",
+    '["상단 왼쪽","상단 오른쪽","중앙 왼쪽","중앙 오른쪽", "하단 왼쪽", "하단 오른쪽"]',
+    '["상단","중앙","하단"]',
+    '["상단","하단"]']
 
   let request = await new Request(url).loadString()
   for(let i in oldMessages) {
@@ -859,43 +862,43 @@ async function fetchInvisibleScript() {
   let index1 = request.indexOf('message = "What size of widget')
   let index2 = request.indexOf('message = "위젯이 홈화면에서 놓일')
   let index3 = request.indexOf
-                     ('message = "Your widget background is ready')
+  ('message = "Your widget background is ready')
   let tailCode = "await FileManager.local().writeImage('"
-                 + (path+'backgroundImage') + "',imgCrop)\n\n"
-                 + 'let noti = new Notification()\n\n'
-                 + 'noti.title = "[Gofo] 달력 위젯"\n\n'
-                 + 'noti.subtitle = "투명배경화면 설정이 완료되었습니다. "'
-                 +           '+ "달력 위젯 스크립트를 실행해주세요."\n\n'
-                 + 'noti.openURL = "'+"scriptable:///run/'"
-                 + "+ encodeURI('Gofo_달력 위젯');"
-                 + '"\n\n'
-                 + 'let date = new Date()\n\n'
-                 + 'date.setSeconds(date.getSeconds()+1)\n\n'
-                 + 'noti.schedule()\n\n\n'
-                 + 'noti.setTriggerDate(date)\n\n'
-                 + "await WebView.loadURL('scriptable:///run/'"
-                 + "+ encodeURI('Gofo_달력 위젯'))\n\n"
+      + (path+'backgroundImage') + "',imgCrop)\n\n"
+      + 'let noti = new Notification()\n\n'
+      + 'noti.title = "[Gofo] 달력 위젯"\n\n'
+      + 'noti.subtitle = "투명배경화면 설정이 완료되었습니다. "'
+      +           '+ "달력 위젯 스크립트를 실행해주세요."\n\n'
+      + 'noti.openURL = "'+"scriptable:///run/'"
+      + "+ encodeURI('Gofo_달력 위젯');"
+      + '"\n\n'
+      + 'let date = new Date()\n\n'
+      + 'date.setSeconds(date.getSeconds()+1)\n\n'
+      + 'noti.schedule()\n\n\n'
+      + 'noti.setTriggerDate(date)\n\n'
+      + "await WebView.loadURL('scriptable:///run/'"
+      + "+ encodeURI('Gofo_달력 위젯'))\n\n"
   let functions = request.substring(
-                  request.indexOf('async function generateAlert'))
+      request.indexOf('async function generateAlert'))
 
   // Edit code.
   let cropCode = request.substring(index2, index3)
   for(let i in oldPosition) {
     cropCode = cropCode.replaceAll(oldPosition[i],newPosition[i])
     functions = functions.replaceAll(oldPosition[i],
-                                     '"'+newPosition[i]+'"')
+        '"'+newPosition[i]+'"')
   }
 
   let file = 'let files = FileManager.local()\n\n'
-             + request.substring(index0, index1) + '\n\n'
-             + 'let widgetSize = "' + widgetSize[size_change]
-             + '"\n\n' + cropCode + '\n\n' + tailCode
-             + '\n\n' + functions
+      + request.substring(index0, index1) + '\n\n'
+      + 'let widgetSize = "' + widgetSize[size_change]
+      + '"\n\n' + cropCode + '\n\n' + tailCode
+      + '\n\n' + functions
 
   console.log('Editing original code is completed.')
 
   const filePath = iCloud.joinPath(iCloud.documentsDirectory(),
-                   'Gofo_투명 위젯 설정.js')
+      'Gofo_투명 위젯 설정.js')
   iCloud.writeString(filePath, file)
 
   console.log("Save edited code.")
@@ -906,5 +909,5 @@ async function fetchInvisibleScript() {
 
   // Run script for making widget invisible.
   await WebView.loadURL('scriptable:///run/'
-                  + encodeURI('Gofo_투명 위젯 설정'))
+      + encodeURI('Gofo_투명 위젯 설정'))
 }
