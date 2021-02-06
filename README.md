@@ -6,7 +6,8 @@
 - 현재는 중간 크기의 위젯만을 지원하며 추후 모든 사이즈에 대해 지원할 예정입니다.
 
 ## 미리보기
-<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FHDEYt%2FbtqVJRfh9ox%2FxGwOK18lTWPE4YPJlx6ulk%2Fimg.png"></img>
+<img src="./img/intro_1.png" width=450px></img>
+<img src="./img/intro_2.png" width=450px></img>  
 
 ## 기능 소개
 ### 바로가기 버튼
