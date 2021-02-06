@@ -6,7 +6,7 @@
 - 현재는 중간 크기의 위젯만을 지원하며 추후 모든 사이즈에 대해 지원할 예정입니다.
 
 ## 미리보기
-<img src="./img/intro_1.png" width=450px></img>
+<img src="./img/intro_1.png" width="415px"></img>
 <img src="./img/intro_2.png" width=450px></img>  
 
 ## 기능 소개
